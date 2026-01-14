@@ -27,13 +27,15 @@ def compute_fft(waveform, sampling_rate=200.0):
     - sampling_rate: sampling frequency in Hz
     
     Returns:
-    - freqs: frequency bins (Hz)
-    - magnitude: magnitude spectrum (normalized)
-    - phase: phase spectrum (radians)
+    - freqs: frequency bins (Hz) or empty array if invalid input
+    - magnitude: magnitude spectrum (normalized) or empty array if invalid input
+    - phase: phase spectrum (radians) or empty array if invalid input
+    
+    Note: Returns empty arrays (not None) for invalid input to prevent downstream errors
     """
-    # Remove NaN values
+    # Handle NaN values - return empty arrays instead of None
     if np.any(np.isnan(waveform)):
-        return None, None, None
+        return np.array([]), np.array([]), np.array([])
     
     # Compute FFT
     n = len(waveform)
@@ -79,7 +81,7 @@ def analyze_frequency_bands(freqs, magnitude, bands=None):
     return band_energy
 
 
-def find_dominant_frequencies(freqs, magnitude, n_peaks=5, min_freq=1.0):
+def find_dominant_frequencies(freqs, magnitude, n_peaks=5, min_freq=1.0, peak_distance=2):
     """
     Find dominant (peak) frequencies in the spectrum.
     
@@ -88,6 +90,8 @@ def find_dominant_frequencies(freqs, magnitude, n_peaks=5, min_freq=1.0):
     - magnitude: magnitude spectrum
     - n_peaks: number of peaks to return
     - min_freq: minimum frequency to consider (ignore DC and very low freq)
+    - peak_distance: minimum distance between peaks in samples (default=2 to avoid 
+                     detecting noise as separate peaks)
     
     Returns:
     - peak_freqs: frequencies of peaks
@@ -99,7 +103,8 @@ def find_dominant_frequencies(freqs, magnitude, n_peaks=5, min_freq=1.0):
     magnitude_filtered = magnitude[mask]
     
     # Find peaks using scipy
-    peaks, properties = signal.find_peaks(magnitude_filtered, height=0, distance=2)
+    # distance=2 ensures peaks are at least 2 samples apart to avoid noise
+    peaks, properties = signal.find_peaks(magnitude_filtered, height=0, distance=peak_distance)
     
     if len(peaks) == 0:
         return [], []
@@ -202,7 +207,8 @@ def demo_fft_analysis():
     
     print("\n   Alert:")
     for band, energy in bands_alert.items():
-        delta = ((energy - bands_baseline[band]) / bands_baseline[band] * 100) if bands_baseline[band] > 0 else 0
+        # Protect against division by zero
+        delta = ((energy - bands_baseline[band]) / bands_baseline[band] * 100) if bands_baseline[band] != 0 else 0
         print(f"      {band:10s}: {energy:.6f} (Δ {delta:+.1f}%)")
     
     # Find dominant frequencies

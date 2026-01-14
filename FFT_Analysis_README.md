@@ -4,7 +4,7 @@ This document explains the FFT (Fast Fourier Transform) analysis added to the vi
 
 ## Overview
 
-The FFT analysis has been integrated into `Manipulaçãodados_parte2.ipynb` to analyze the frequency content of synthesized vibration waveforms. This allows us to:
+The FFT analysis has been integrated into the second notebook (`Manipulaçãodados_parte2.ipynb`) to analyze the frequency content of synthesized vibration waveforms. This allows us to:
 
 1. **Identify dominant frequencies** in vibration signals
 2. **Compare frequency content** between baseline and alert conditions
@@ -127,7 +127,7 @@ In this example:
 
 ## Usage
 
-Simply run the FFT analysis cell after the wave reconstruction cell (Cell 21). The analysis will:
+Simply run the FFT analysis cell (located after the "Wave Reconstruction" section) in the notebook. The analysis will:
 
 1. Load existing reconstructed waveforms
 2. Compute FFT for baseline and alert conditions
